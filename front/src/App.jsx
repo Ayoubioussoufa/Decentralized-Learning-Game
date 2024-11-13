@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import NavBar from './NavBar.jsx'
-import TextAndModel from './TextAndModel.jsx'
-import ModelAndText from './ModelAndText.jsx'
-import Footer from './Footer.jsx'
+import NavBar from './components/NavBar.jsx'
+import TextAndModel from './components/TextAndModel.jsx'
+import Interactive from './components/Interactive.jsx'
+import Footer from './components/Footer.jsx'
+import StayUpdated from './components/StayUpdated.jsx'
+import WhyDiff from './components/WhyDiff.jsx'
 
 function App() {
 
@@ -10,7 +12,9 @@ function App() {
     <>
       <NavBar/>
       <TextAndModel/>
-      {/* <ModelAndText/> */}
+      <WhyDiff/>
+      <Interactive/>
+      <StayUpdated/>
       <Footer/>
     </>
   )

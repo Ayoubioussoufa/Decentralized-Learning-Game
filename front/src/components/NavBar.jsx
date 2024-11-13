@@ -14,7 +14,7 @@ const NavBar = () => {
     <>
     <nav className="bg-black p-4">
       <div className="max-w-7xl text-white flex mx-auto justify-between items-center">
-        <h1 className="text-xl">Gamified Learning Game</h1>
+        <h1 className="p-6 text-xl">AyBiouss</h1>
 
       {/* Desktop */}
         <div className="hidden md:flex space-x-4">
@@ -33,7 +33,7 @@ const NavBar = () => {
           </button>
         </div>
 
-        <div className={`${open ? 'block' : 'hidden'} md:hidden fixed top-0 left-0 h-screen bg-black w-full`}>
+        <div className={`${open ? 'block' : 'hidden'} md:hidden fixed top-0 left-0 h-screen bg-black w-full z-10`}>
         <div className="flex justify-between items-center p-4">
         <h1 className="text-xl">Gamified Learning Game</h1>
           <button onClick={checking} className="text-white">
