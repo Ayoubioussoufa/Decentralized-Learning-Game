@@ -18,10 +18,10 @@ function WhyDiff() {
                     </div>
                 </div>
                 <div className="">
-                    <p className="p-6">
+                    <p className="p-6 text-gray2">
                         AyBiouss is the largest education platform for blockchain development, it’s been around for 2+ years, with over 400k registered users that have finished multiple courses.
                     </p>
-                    <p className="p-6">AyBiouss was the first tutorial on the internet for NFTs, and is still very relevant to the new crop of web3 developers looking to enter the industry today. Currently the AyBiouss curriculum is mostly focused on Ethereum and Solidity development, but is a lot of demand for content targeting other chains such as Binance, TRON, and even projects like Chainlink.</p>
+                    <p className="p-6 text-gray2">AyBiouss was the first tutorial on the internet for NFTs, and is still very relevant to the new crop of web3 developers looking to enter the industry today. Currently the AyBiouss curriculum is mostly focused on Ethereum and Solidity development, but is a lot of demand for content targeting other chains such as Binance, TRON, and even projects like Chainlink.</p>
                 </div>
             </div>
         </>

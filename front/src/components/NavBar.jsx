@@ -14,14 +14,14 @@ const NavBar = () => {
     <>
     <nav className="bg-black p-4">
       <div className="max-w-7xl text-white flex mx-auto justify-between items-center">
-        <h1 className="p-6 text-xl">AyBiouss</h1>
+        <h1 className="p-6 text-xl"><a href="/">AyBiouss</a></h1>
 
       {/* Desktop */}
         <div className="hidden md:flex space-x-4">
-          <a className="block text-white p-2 hover:text-gold" href="#blog">Blog</a>
-          <a className="block text-white p-2 hover:text-gold" href="#videos">Videos</a>
-          <a className="block text-white p-2 hover:text-gold" href="#courses">Courses</a>
-          <a className="block text-white p-2 bg-gold border-solid rounded hover:text-black" href="#start">Start Course</a>
+          <a className="block text-white p-2 hover:text-gold" href="blog">Blog</a>
+          <a className="block text-white p-2 hover:text-gold" href="videos">Videos</a>
+          <a className="block text-white p-2 hover:text-gold" href="courses">Courses</a>
+          <a className="block text-white p-2 bg-gold border-solid rounded hover:text-black" href="start">Start Course</a>
         </div>
 
       {/* Mobile */}
@@ -41,10 +41,12 @@ const NavBar = () => {
           </svg>
           </button>
           </div>
-          <a className="block text-white  m-2 p-2 hover:text-gold" href="#blog">Blog</a>
-          <a className="block text-white  m-2 p-2 hover:text-gold" href="#videos">Videos</a>
-          <a className="block text-white  m-2 p-2 hover:text-gold" href="#courses">Courses</a>
-          <a className="m-2 p-3 bg-gold border-solid rounded hover:text-black text-white p-2" href="#start">Start Course</a>
+          <a className="block text-white  m-2 p-2 hover:text-gold" href="blog">Blog</a>
+          <a className="block text-white  m-2 p-2 hover:text-gold" href="videos">Videos</a>
+          <a className="block text-white  m-2 p-2 hover:text-gold" href="courses">Courses</a>
+          <button className="mt-2">
+            <a className=" m-2 bg-gold border-solid rounded hover:text-black text-white p-2" href="start">Start Course</a>
+          </button>
         </div>
       </div>
     </nav>

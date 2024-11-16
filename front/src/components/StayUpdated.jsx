@@ -9,7 +9,7 @@ function StayUpdated() {
         <div className="mt-10">
           <form action="">
             <div>
-              <input className="w-auto p-3 bg-black border rounded border-gray2" type="email" name="" id="" placeholder="Enter Your Email Address" />
+              <input className="p-3 bg-black border rounded border-gray2 w-64" type="email" name="email" id="" placeholder="Enter Your Email Address"/>
               <button type="submit" className="px-6 py-3 bg-gold border-solid rounded hover:text-black my-5 xs:my-0">SUBMIT</button>
             </div>
           </form>
