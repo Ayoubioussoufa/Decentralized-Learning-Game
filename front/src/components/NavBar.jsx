@@ -45,7 +45,7 @@ const NavBar = () => {
           <a className="block text-white  m-2 p-2 hover:text-gold" href="videos">Videos</a>
           <a className="block text-white  m-2 p-2 hover:text-gold" href="courses">Courses</a>
           <button className="mt-2">
-            <a className=" m-2 bg-gold border-solid rounded hover:text-black text-white p-2" href="start">Start Course</a>
+            <a className="m-2 bg-gold border-solid rounded hover:text-black text-white p-2" href="start">Start Course</a>
           </button>
         </div>
       </div>
