@@ -1,12 +1,19 @@
 import React from "react";
 import { useState } from "react";
+import { useMetaMask } from '../contexts/MetaMaskContext';
 
 const NavBar = () => {
   const [open, isOpen] = useState(false);
+  const { account, isConnected, connect, disconnect } = useMetaMask();
 
   const checking = () => {
     isOpen(!open);
   }
+
+  const formatAddress = (address) => {
+    if (!address) return '';
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   return (
     <>
@@ -19,6 +26,24 @@ const NavBar = () => {
           <a className="block text-white p-2 hover:text-gold" href="blog">Blog</a>
           <a className="block text-white p-2 hover:text-gold" href="videos">Videos</a>
           <a className="block text-white p-2 hover:text-gold" href="courses">Courses</a>
+          {isConnected ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-white p-2">{formatAddress(account)}</span>
+              <button 
+                onClick={disconnect}
+                className="text-white p-2 bg-red-600 rounded hover:bg-red-700"
+              >
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={connect}
+              className="text-white p-2 bg-gold rounded hover:text-black"
+            >
+              Connect Wallet
+            </button>
+          )}
         </div>
 
       {/* Mobile */}
@@ -47,6 +72,24 @@ const NavBar = () => {
           <a className="block text-white m-2 p-2 hover:text-gold" href="blog">Blog</a>
           <a className="block text-white m-2 p-2 hover:text-gold" href="videos">Videos</a>
           <a className="block text-white m-2 p-2 hover:text-gold" href="courses">Courses</a>
+          {isConnected ? (
+            <div className="m-2">
+              <span className="block text-white p-2">{formatAddress(account)}</span>
+              <button 
+                onClick={disconnect}
+                className="w-full text-white p-2 bg-red-600 rounded hover:bg-red-700"
+              >
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <button 
+              onClick={connect}
+              className="w-full m-2 text-white p-2 bg-gold rounded hover:text-black"
+            >
+              Connect Wallet
+            </button>
+          )}
         </div>
       </div>
     </nav>
