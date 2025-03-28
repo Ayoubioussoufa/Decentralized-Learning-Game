@@ -5,10 +5,12 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import NavBar from '../components/NavBar.jsx';
 import { courses } from '../data/courses.js';
+import { useMetaMask } from '../contexts/MetaMaskContext';
 
 const Step = () => {
   const { courseId, lessonId, stepId } = useParams();
   const navigate = useNavigate();
+  const { markStepComplete, checkStepCompletion } = useMetaMask();
   const [stepData, setStepData] = useState(null);
   const [courseData, setCourseData] = useState(null);
   const [code, setCode] = useState('');
@@ -36,24 +38,47 @@ const Step = () => {
     setError(null);
   }, [courseId, lessonId, stepId]);
 
-  const handleComplete = () => {
+  // Check if step is completed in the contract
+  useEffect(() => {
+    const checkCompletion = async () => {
+      try {
+        const isCompleted = await checkStepCompletion(stepId);
+        setIsStepCompleted(isCompleted);
+      } catch (error) {
+        console.error('Error checking step completion:', error);
+        setError('Failed to check step completion');
+      }
+    };
+
+    checkCompletion();
+  }, [stepId, checkStepCompletion]);
+
+  const handleNext = async () => {
     if (!isStepCompleted) {
       return;
     }
 
-    const currentLesson = courseData.lessons.find(l => l.id === lessonId);
-    const currentStepIndex = currentLesson.steps.findIndex(s => s.id === stepId);
-    
-    if (currentStepIndex < currentLesson.steps.length - 1) {
-      navigate(`/courses/${courseId}/lesson/${lessonId}/step/${currentLesson.steps[currentStepIndex + 1].id}`);
-    } else {
-      const currentLessonIndex = courseData.lessons.findIndex(l => l.id === lessonId);
-      if (currentLessonIndex < courseData.lessons.length - 1) {
-        const nextLesson = courseData.lessons[currentLessonIndex + 1];
-        navigate(`/courses/${courseId}/lesson/${nextLesson.id}/step/${nextLesson.steps[0].id}`);
+    try {
+      // Mark step as completed in the contract
+      await markStepComplete(stepId);
+      
+      const currentLesson = courseData.lessons.find(l => l.id === lessonId);
+      const currentStepIndex = currentLesson.steps.findIndex(s => s.id === stepId);
+      
+      if (currentStepIndex < currentLesson.steps.length - 1) {
+        navigate(`/courses/${courseId}/lesson/${lessonId}/step/${currentLesson.steps[currentStepIndex + 1].id}`);
       } else {
-        navigate(`/courses/${courseId}`);
+        const currentLessonIndex = courseData.lessons.findIndex(l => l.id === lessonId);
+        if (currentLessonIndex < courseData.lessons.length - 1) {
+          const nextLesson = courseData.lessons[currentLessonIndex + 1];
+          navigate(`/courses/${courseId}/lesson/${nextLesson.id}/step/${nextLesson.steps[0].id}`);
+        } else {
+          navigate(`/courses/${courseId}`);
+        }
       }
+    } catch (error) {
+      console.error('Error marking step as complete:', error);
+      setError('Failed to mark step as complete');
     }
   };
 
@@ -262,7 +287,7 @@ const Step = () => {
               </button>
 
               <button
-                onClick={handleComplete}
+                onClick={handleNext}
                 disabled={!isStepCompleted}
                 className={`w-full px-8 py-5 rounded-lg transition-colors font-medium text-lg shadow-lg ${
                   isStepCompleted 

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import Web3 from 'web3';
+import { ethers } from 'ethers';
+import { createContract, registerUser, completeLesson, completeStep, getUserProgress, isLessonCompleted, isStepCompleted } from '../services/contractService';
 
 const MetaMaskContext = createContext();
 
@@ -13,28 +14,20 @@ export const useMetaMask = () => {
 
 export const MetaMaskProvider = ({ children }) => {
     const [account, setAccount] = useState(null);
-    const [web3, setWeb3] = useState(null);
+    const [provider, setProvider] = useState(null);
+    const [signer, setSigner] = useState(null);
+    const [contract, setContract] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const initializeWeb3 = async () => {
-            if (typeof window.ethereum !== 'undefined') {
-                const web3Instance = new Web3(window.ethereum);
-                setWeb3(web3Instance);
-                
-                // Check if we have a stored connection
-                const storedAccount = localStorage.getItem('metamask_account');
-                if (storedAccount) {
-                    setAccount(storedAccount);
-                    setIsConnected(true);
-                }
-            } else {
-                setError('Please install MetaMask to use this application');
-            }
-        };
+        // Check if we have a stored connection
+        const storedAccount = localStorage.getItem('metamask_account');
+        if (storedAccount) {
+            setAccount(storedAccount);
+            setIsConnected(true);
+        }
 
-        initializeWeb3();
         setupEventListeners();
         return () => {
             removeEventListeners();
@@ -72,9 +65,20 @@ export const MetaMaskProvider = ({ children }) => {
     const connect = async () => {
         try {
             if (typeof window.ethereum !== 'undefined') {
-                // Only request connection when user clicks the button
+                // Request account access
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 if (accounts.length > 0) {
+                    // Create provider and signer
+                    const provider = new ethers.BrowserProvider(window.ethereum);
+                    const signer = await provider.getSigner();
+                    
+                    setProvider(provider);
+                    setSigner(signer);
+                    
+                    // Initialize contract
+                    const contractInstance = createContract(provider, signer);
+                    setContract(contractInstance);
+
                     setAccount(accounts[0]);
                     setIsConnected(true);
                     localStorage.setItem('metamask_account', accounts[0]);
@@ -93,8 +97,52 @@ export const MetaMaskProvider = ({ children }) => {
         localStorage.removeItem('metamask_account');
     };
 
+    const registerUserInContract = async (username) => {
+        if (!contract || !account) return;
+        return registerUser(contract, account, username);
+    };
+
+    const markLessonComplete = async (lessonId) => {
+        if (!contract || !account) return;
+        return completeLesson(contract, account, lessonId);
+    };
+
+    const markStepComplete = async (stepId) => {
+        if (!contract || !account) return;
+        return completeStep(contract, account, stepId);
+    };
+
+    const getProgress = async () => {
+        if (!contract || !account) return null;
+        return getUserProgress(contract, account);
+    };
+
+    const checkLessonCompletion = async (lessonId) => {
+        if (!contract || !account) return false;
+        return isLessonCompleted(contract, account, lessonId);
+    };
+
+    const checkStepCompletion = async (stepId) => {
+        if (!contract || !account) return false;
+        return isStepCompleted(contract, account, stepId);
+    };
+
+    const value = {
+        account,
+        isConnected,
+        error,
+        connect,
+        disconnect,
+        registerUserInContract,
+        markLessonComplete,
+        markStepComplete,
+        getProgress,
+        checkLessonCompletion,
+        checkStepCompletion
+    };
+
     return (
-        <MetaMaskContext.Provider value={{ account, web3, isConnected, error, connect, disconnect }}>
+        <MetaMaskContext.Provider value={value}>
             {children}
         </MetaMaskContext.Provider>
     );

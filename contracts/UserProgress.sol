@@ -7,11 +7,12 @@ contract UserProgress {
         uint256 joinDate;
         uint256 totalPoints;
         bool isActive;
-        mapping(string => bool) completedLessons;
-        mapping(string => bool) completedSteps;
     }
 
     mapping(address => User) public users;
+    mapping(address => mapping(string => bool)) public completedLessons; // Mapping for completed lessons
+    mapping(address => mapping(string => bool)) public completedSteps;   // Mapping for completed steps
+
     address public owner;
     
     event UserRegistered(address indexed user, string username);
@@ -41,9 +42,9 @@ contract UserProgress {
 
     function completeLesson(string memory _lessonId) public {
         require(users[msg.sender].isActive, "User not registered");
-        require(!users[msg.sender].completedLessons[_lessonId], "Lesson already completed");
+        require(!completedLessons[msg.sender][_lessonId], "Lesson already completed");
         
-        users[msg.sender].completedLessons[_lessonId] = true;
+        completedLessons[msg.sender][_lessonId] = true;
         users[msg.sender].totalPoints += 100; // Award 100 points for completing a lesson
         
         emit LessonCompleted(msg.sender, _lessonId);
@@ -52,9 +53,9 @@ contract UserProgress {
 
     function completeStep(string memory _stepId) public {
         require(users[msg.sender].isActive, "User not registered");
-        require(!users[msg.sender].completedSteps[_stepId], "Step already completed");
+        require(!completedSteps[msg.sender][_stepId], "Step already completed");
         
-        users[msg.sender].completedSteps[_stepId] = true;
+        completedSteps[msg.sender][_stepId] = true;
         users[msg.sender].totalPoints += 10; // Award 10 points for completing a step
         
         emit StepCompleted(msg.sender, _stepId);
@@ -71,10 +72,10 @@ contract UserProgress {
     }
 
     function isLessonCompleted(address _user, string memory _lessonId) public view returns (bool) {
-        return users[_user].completedLessons[_lessonId];
+        return completedLessons[_user][_lessonId];
     }
 
     function isStepCompleted(address _user, string memory _stepId) public view returns (bool) {
-        return users[_user].completedSteps[_stepId];
+        return completedSteps[_user][_stepId];
     }
-} 
+}
