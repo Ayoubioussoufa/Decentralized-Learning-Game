@@ -5,3 +5,16 @@
 body {
     background-color: black;
 }
+
+.swiper-custom-pagination .swiper-pagination-bullet {
+    width: 12px;
+    height: 12px;
+    background: #C8AA6E !important;
+    opacity: 0.3;
+    margin: 0 6px;
+    cursor: pointer;
+  }
+  
+  .swiper-custom-pagination .swiper-pagination-bullet-active {
+    opacity: 1;
+  }

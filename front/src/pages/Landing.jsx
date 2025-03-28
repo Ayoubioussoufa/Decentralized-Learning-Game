@@ -7,16 +7,17 @@ import StayUpdated from '../components/StayUpdated.jsx'
 import WhyDiff from '../components/WhyDiff.jsx'
 
 function Landing() {
-
   return (
-    <>
+    <div className="min-h-screen bg-black flex flex-col">
       <NavBar/>
-      <TextAndModel/>
-      <WhyDiff/>
-      <Interactive/>
-      <StayUpdated/>
+      <main className="flex-grow w-full max-w-[1120px] mx-auto px-4">
+        <TextAndModel/>
+        <WhyDiff/>
+        <Interactive/>
+        <StayUpdated/>
+      </main>
       <Footer/>
-    </>
+    </div>
   )
 }
 

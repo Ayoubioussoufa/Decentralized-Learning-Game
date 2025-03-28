@@ -1,1 +1,1 @@
-Not finished yet, still working on transcendence !!
+Not finished yet

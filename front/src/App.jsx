@@ -1,18 +1,19 @@
-import { useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-
-import Landing from "./pages/Landing.jsx";
-import Start from "./pages/Start.jsx";
-import Courses from "./pages/Courses.jsx";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Landing from './pages/Landing.jsx';
+import Courses from './pages/Courses.jsx';
+import Course from './pages/Course.jsx';
+import Step from './pages/Step.jsx';
 
 function App() {
   return (
     <Router>
-        <Routes>
-          <Route path="/" element={<Landing />}/>
-          <Route path="/start" element={<Start />}/>
-          <Route path="/courses" element={<Courses />}/>
-        </Routes>
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/courses" element={<Courses />} />
+        <Route path="/courses/:courseId" element={<Course />} />
+        <Route path="/courses/:courseId/lesson/:lessonId/step/:stepId" element={<Step />} />
+      </Routes>
     </Router>
   );
 }
