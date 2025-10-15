@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import CourseCard from '../components/CourseCard';
@@ -8,6 +8,8 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import { useMetaMask } from '../contexts/MetaMaskContext';
+import { getCourseProgress as getCourseProgressAPI } from '../services/api';
 
 const courses = [
   {
@@ -44,6 +46,29 @@ const courses = [
 
 function Courses() {
   const navigate = useNavigate();
+  const { account } = useMetaMask();
+  const [courseProgress, setCourseProgress] = useState({});
+
+  useEffect(() => {
+    const loadAllProgress = async () => {
+      if (account) {
+        const progressData = {};
+        for (const course of courses) {
+          try {
+            const progress = await getCourseProgressAPI(account, course.id);
+            // Convert string value to number (API returns strings to avoid BigInt serialization issues)
+            progressData[course.id] = parseInt(progress.completionPercentage) || 0;
+          } catch (error) {
+            console.error(`Error loading progress for ${course.id}:`, error);
+            progressData[course.id] = 0;
+          }
+        }
+        setCourseProgress(progressData);
+      }
+    };
+
+    loadAllProgress();
+  }, [account]);
 
   const handleStartCourse = (courseId) => {
     navigate(`/courses/${courseId}`);
@@ -78,11 +103,27 @@ function Courses() {
                       <p className="text-gray-400 text-lg mt-4 max-w-xl">{course.description}</p>
                     </div>
                     
+                    {/* Progress Section for Swiper */}
+                    {account && courseProgress[course.id] > 0 && (
+                      <div className="mt-6 bg-black/30 border border-[#C8AA6E]/20 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-white font-medium text-sm">Progress</span>
+                          <span className="text-[#C8AA6E] font-bold">{courseProgress[course.id]}%</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-2">
+                          <div 
+                            className="bg-[#C8AA6E] h-2 rounded-full transition-all duration-500"
+                            style={{ width: `${courseProgress[course.id]}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+
                     <button 
                       onClick={() => handleStartCourse(course.id)}
                       className="mt-8 w-48 bg-[#C8AA6E] text-black py-4 rounded-lg hover:bg-[#C8AA6E]/90 transition-colors font-medium text-lg"
                     >
-                      Start Course
+                      {courseProgress[course.id] > 0 ? 'Continue Course' : 'Start Course'}
                     </button>
                   </div>
                   

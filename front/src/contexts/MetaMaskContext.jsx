@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { ethers } from 'ethers';
-import { createContract, registerUser, completeLesson, completeStep, getUserProgress, isLessonCompleted, isStepCompleted } from '../services/contractService';
+import { createContract, registerUser, completeLesson, completeStep, getUserProgress, isLessonCompleted, isStepCompleted, getCourseProgress, calculateCourseProgress } from '../services/contractService';
 
 const MetaMaskContext = createContext();
 
@@ -64,33 +64,41 @@ export const MetaMaskProvider = ({ children }) => {
 
     const connect = async () => {
         try {
-            if (typeof window.ethereum !== 'undefined') {
-                // Request account access
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                if (accounts.length > 0) {
-                    // Create provider and signer
-                    const provider = new ethers.BrowserProvider(window.ethereum);
-                    const signer = await provider.getSigner();
-                    
-                    setProvider(provider);
-                    setSigner(signer);
-                    
-                    // Initialize contract
-                    const contractInstance = createContract(provider, signer);
-                    setContract(contractInstance);
-
-                    setAccount(accounts[0]);
-                    setIsConnected(true);
-                    localStorage.setItem('metamask_account', accounts[0]);
-                }
-            } else {
+            if (!window.ethereum) {
                 setError('Please install MetaMask to use this application');
+                return;
             }
+    
+            // Explicitly request accounts (MetaMask pop-up)
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    
+            if (accounts.length === 0) {
+                setError('No accounts found');
+                return;
+            }
+    
+            const provider = new ethers.BrowserProvider(window.ethereum);
+    
+            // IMPORTANT: getSigner requires the account index (0 for first account)
+            const signer = await provider.getSigner(accounts[0]);
+    
+            // Initialize contract using signer
+            const contractInstance = createContract(provider, signer);
+    
+            // Set state
+            setProvider(provider);
+            setSigner(signer);
+            setContract(contractInstance);
+            setAccount(accounts[0]);
+            setIsConnected(true);
+            localStorage.setItem('metamask_account', accounts[0]);
+    
         } catch (err) {
+            console.error(err);
             setError(err.message);
         }
     };
-
+    
     const disconnect = () => {
         setAccount(null);
         setIsConnected(false);
@@ -107,9 +115,9 @@ export const MetaMaskProvider = ({ children }) => {
         return completeLesson(contract, account, lessonId);
     };
 
-    const markStepComplete = async (stepId) => {
+    const markStepComplete = async (stepId, courseId) => {
         if (!contract || !account) return;
-        return completeStep(contract, account, stepId);
+        return completeStep(contract, stepId, courseId);
     };
 
     const getProgress = async () => {
@@ -127,8 +135,20 @@ export const MetaMaskProvider = ({ children }) => {
         return isStepCompleted(contract, account, stepId);
     };
 
+    const getCourseProgressData = async (courseId) => {
+        if (!contract || !account) return null;
+        return getCourseProgress(contract, account, courseId);
+    };
+
+    const getCourseCompletionPercentage = async (courseId) => {
+        if (!contract || !account) return 0;
+        return calculateCourseProgress(contract, account, courseId);
+    };
+
     const value = {
         account,
+        provider,
+        signer,
         isConnected,
         error,
         connect,
@@ -138,7 +158,9 @@ export const MetaMaskProvider = ({ children }) => {
         markStepComplete,
         getProgress,
         checkLessonCompletion,
-        checkStepCompletion
+        checkStepCompletion,
+        getCourseProgressData,
+        getCourseCompletionPercentage
     };
 
     return (

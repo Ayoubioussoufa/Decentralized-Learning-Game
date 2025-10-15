@@ -6,11 +6,12 @@ import remarkGfm from 'remark-gfm';
 import NavBar from '../components/NavBar.jsx';
 import { courses } from '../data/courses.js';
 import { useMetaMask } from '../contexts/MetaMaskContext';
+import { verifyCode } from '../services/api.js';
 
 const Step = () => {
   const { courseId, lessonId, stepId } = useParams();
   const navigate = useNavigate();
-  const { markStepComplete, checkStepCompletion } = useMetaMask();
+  const { markStepComplete, checkStepCompletion, account, signer, contract } = useMetaMask();
   const [stepData, setStepData] = useState(null);
   const [courseData, setCourseData] = useState(null);
   const [code, setCode] = useState('');
@@ -18,6 +19,7 @@ const Step = () => {
   const [error, setError] = useState(null);
   const [showExpectedCode, setShowExpectedCode] = useState(false);
   const [isStepCompleted, setIsStepCompleted] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     const course = courses.find(c => c.id === courseId);
@@ -60,7 +62,7 @@ const Step = () => {
 
     try {
       // Mark step as completed in the contract
-      await markStepComplete(stepId);
+      await markStepComplete(stepId, courseId);
       
       const currentLesson = courseData.lessons.find(l => l.id === lessonId);
       const currentStepIndex = currentLesson.steps.findIndex(s => s.id === stepId);
@@ -86,41 +88,70 @@ const Step = () => {
     try {
       setError(null);
       setCompilationResult(null);
-
-      if (!code.includes('pragma solidity >=0.5.0 <0.6.0;')) {
+      setIsVerifying(true);
+  
+      if (!code.trim()) {
         setCompilationResult({
           success: false,
-          message: 'Missing or incorrect pragma statement. Make sure to include: pragma solidity >=0.5.0 <0.6.0;'
+          message: 'Please write some code before submitting.'
         });
+        setIsVerifying(false);
         return;
       }
-
-      if (!code.includes('contract MyFirstContract')) {
+  
+      if (!account || !signer || !contract) {
+        setError('Please connect your wallet to verify code.');
+        setIsVerifying(false);
+        return;
+      }
+  
+      // Step 1: Sign a message for backend authentication
+      const message = `Verify code submission for step ${stepId}`;
+      const signature = await signer.signMessage(message);
+  
+      // Step 2: Call backend API to verify code
+      const result = await verifyCode(
+        stepId,
+        courseId,
+        code,
+        stepData.expectedCode || '',
+        signature,
+        message,
+        account
+      );
+  
+      if (!result.isCorrect) {
         setCompilationResult({
           success: false,
-          message: 'Contract name is incorrect. Make sure to name your contract "MyFirstContract"'
+          message: result.message || 'Code verification failed. Please check your implementation and try again.'
         });
+        setIsStepCompleted(false);
         return;
       }
-
-      if (!code.includes('{') || !code.includes('}')) {
-        setCompilationResult({
-          success: false,
-          message: 'Contract is missing curly braces. Make sure to include both opening and closing braces.'
-        });
-        return;
-      }
-
+  
+      // Step 3: Code is correct, send transaction via MetaMask
+      const tx = await contract.markStepComplete(stepId, courseId);
+      await tx.wait(); // Wait for confirmation
+  
+      // Step 4: Update UI
       setCompilationResult({
         success: true,
-        message: 'Contract compiled successfully! You\'ve created your first smart contract!'
+        message: `Code verified! Step completed on blockchain. TxHash: ${tx.hash}`
       });
       setIsStepCompleted(true);
+  
+      // Update local state to reflect completion
+      if (stepData) stepData.completed = true;
+  
     } catch (err) {
-      setError(err.message);
+      console.error('Verification or transaction error:', err);
+      setError(err.message || 'Failed to verify code or complete step. Please try again.');
+      setIsStepCompleted(false);
+    } finally {
+      setIsVerifying(false);
     }
   };
-
+  
   const highlightKeywords = (text) => {
     const keywords = [
       'contract', 'pragma', 'solidity', 'function', 'public', 'private', 'view', 'pure', 'payable',
@@ -281,9 +312,14 @@ const Step = () => {
             <div className="flex flex-col space-y-6">
               <button
                 onClick={handleCompile}
-                className="w-full bg-[#C8AA6E] text-black px-8 py-5 rounded-lg hover:bg-[#C8AA6E]/90 transition-colors font-medium text-lg shadow-lg hover:shadow-[#C8AA6E]/20"
+                disabled={isVerifying}
+                className={`w-full px-8 py-5 rounded-lg transition-colors font-medium text-lg shadow-lg ${
+                  isVerifying 
+                    ? 'bg-gray-600 text-gray-300 cursor-not-allowed' 
+                    : 'bg-[#C8AA6E] text-black hover:bg-[#C8AA6E]/90 hover:shadow-[#C8AA6E]/20'
+                }`}
               >
-                Check Answer
+                {isVerifying ? 'Verifying Code...' : 'Check Answer'}
               </button>
 
               <button

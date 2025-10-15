@@ -1,5 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMetaMask } from '../contexts/MetaMaskContext';
+import { getCourseProgress as getCourseProgressAPI } from '../services/api';
 
 const CourseCard = ({
   id,
@@ -10,6 +12,26 @@ const CourseCard = ({
   imageUrl,
 }) => {
   const navigate = useNavigate();
+  const { account } = useMetaMask();
+  const [completionPercentage, setCompletionPercentage] = React.useState(0);
+
+  React.useEffect(() => {
+    const loadProgress = async () => {
+      if (account) {
+        try {
+          const progress = await getCourseProgressAPI(account, id);
+          // Convert string value to number (API returns strings to avoid BigInt serialization issues)
+          const percentage = parseInt(progress.completionPercentage) || 0;
+          setCompletionPercentage(percentage);
+        } catch (error) {
+          console.error('Error loading course progress:', error);
+          setCompletionPercentage(0);
+        }
+      }
+    };
+
+    loadProgress();
+  }, [account, id]);
 
   const handleStartCourse = () => {
     navigate(`/courses/${id}`);
@@ -26,12 +48,28 @@ const CourseCard = ({
           <p className="text-[#C8AA6E] mt-4">{subtitle}</p>
           <p className="text-gray-400 mt-4 max-w-xl">{description}</p>
         </div>
+
+        {/* Progress Section */}
+        {account && completionPercentage > 0 && (
+          <div className="mt-6 bg-black/30 border border-[#C8AA6E]/20 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-white font-medium text-sm">Progress</span>
+              <span className="text-[#C8AA6E] font-bold">{completionPercentage}%</span>
+            </div>
+            <div className="w-full bg-gray-700 rounded-full h-2">
+              <div 
+                className="bg-[#C8AA6E] h-2 rounded-full transition-all duration-500"
+                style={{ width: `${completionPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
         
         <button 
           onClick={handleStartCourse}
           className="mt-8 w-48 bg-[#C8AA6E] text-black py-3 rounded-lg hover:bg-[#C8AA6E]/90 transition-colors font-medium"
         >
-          Start Course
+          {completionPercentage > 0 ? 'Continue Course' : 'Start Course'}
         </button>
       </div>
       

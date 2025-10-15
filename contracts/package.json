@@ -1,0 +1,35 @@
+{
+  "name": "learning-platform-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for the learning platform",
+  "type": "commonjs",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "deploy": "hardhat run scripts/deploy.js",
+    "deploy:ignition": "hardhat ignition deploy ignition/modules/UserProgressModule.js",
+    "verify": "hardhat run scripts/verify-setup.js",
+    "verify:backend": "hardhat run scripts/verify-backend-integration.js",
+    "integration": "hardhat run scripts/full-integration.js",
+    "node": "hardhat node",
+    "clean": "hardhat clean",
+    "size": "hardhat size-contracts",
+    "setup": "node ../setup-contracts.js"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "hardhat": "^2.26.3",
+    "hardhat-gas-reporter": "^2.0.0",
+    "solidity-coverage": "^0.8.11"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum",
+    "hardhat",
+    "smart-contracts",
+    "learning-platform"
+  ],
+  "author": "Learning Platform Team",
+  "license": "MIT"
+}

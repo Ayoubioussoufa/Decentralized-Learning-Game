@@ -17,6 +17,31 @@
         {
           "indexed": false,
           "internalType": "string",
+          "name": "courseId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "completionPercentage",
+          "type": "uint256"
+        }
+      ],
+      "name": "CourseProgressUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
           "name": "lessonId",
           "type": "string"
         }
@@ -57,6 +82,12 @@
           "internalType": "string",
           "name": "stepId",
           "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "courseId",
+          "type": "string"
         }
       ],
       "name": "StepCompleted",
@@ -84,6 +115,30 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_courseId",
+          "type": "string"
+        }
+      ],
+      "name": "calculateCourseProgress",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "string",
           "name": "_lessonId",
           "type": "string"
@@ -99,6 +154,11 @@
         {
           "internalType": "string",
           "name": "_stepId",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "_courseId",
           "type": "string"
         }
       ],
@@ -149,6 +209,98 @@
         {
           "internalType": "bool",
           "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "name": "courseProgress",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "completedSteps",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalSteps",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isCompleted",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "getCompletedStepsCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_user",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "_courseId",
+          "type": "string"
+        }
+      ],
+      "name": "getCourseProgress",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "completedStep",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalSteps",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "completionPercentage",
+          "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isCompleted",
           "type": "bool"
         }
       ],
@@ -266,6 +418,24 @@
     {
       "inputs": [
         {
+          "internalType": "string",
+          "name": "_courseId",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_totalSteps",
+          "type": "uint256"
+        }
+      ],
+      "name": "setCourseTotalSteps",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "address",
           "name": "",
           "type": "address"
@@ -297,5 +467,12 @@
       "stateMutability": "view",
       "type": "function"
     }
-  ]
+  ],
+  "contractName": "UserProgress",
+  "network": {
+    "name": "localhost",
+    "chainId": "31337"
+  },
+  "deployer": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+  "timestamp": "2025-10-15T15:41:59.163Z"
 }

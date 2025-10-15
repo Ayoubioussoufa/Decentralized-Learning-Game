@@ -1,10 +1,12 @@
 import React from "react";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useMetaMask } from '../contexts/MetaMaskContext';
 
 const NavBar = () => {
   const [open, isOpen] = useState(false);
   const { account, isConnected, connect, disconnect } = useMetaMask();
+  const navigate = useNavigate();
 
   const checking = () => {
     isOpen(!open);
@@ -19,13 +21,15 @@ const NavBar = () => {
     <>
     <nav className="bg-black p-4">
       <div className="w-full max-w-[1120px] text-white flex mx-auto justify-between items-center">
-        <h1 className="p-6 text-xl"><a href="/">AyBiouss</a></h1>
+        <h1 className="p-6 text-xl">
+          <Link to="/" className="hover:text-[#C8AA6E] transition-colors">AyBiouss</Link>
+        </h1>
 
       {/* Desktop */}
         <div className="hidden md:flex space-x-4">
-          <a className="block text-white p-2 hover:text-gold" href="blog">Blog</a>
-          <a className="block text-white p-2 hover:text-gold" href="videos">Videos</a>
-          <a className="block text-white p-2 hover:text-gold" href="courses">Courses</a>
+          <button className="block text-white p-2 hover:text-[#C8AA6E] transition-colors" onClick={() => navigate('/blog')}>Blog</button>
+          <button className="block text-white p-2 hover:text-[#C8AA6E] transition-colors" onClick={() => navigate('/videos')}>Videos</button>
+          <button className="block text-white p-2 hover:text-[#C8AA6E] transition-colors" onClick={() => navigate('/courses')}>Courses</button>
           {isConnected ? (
             <div className="flex items-center space-x-4">
               <span className="text-white p-2">{formatAddress(account)}</span>
@@ -69,9 +73,9 @@ const NavBar = () => {
               </svg>
             </button>
           </div>
-          <a className="block text-white m-2 p-2 hover:text-gold" href="blog">Blog</a>
-          <a className="block text-white m-2 p-2 hover:text-gold" href="videos">Videos</a>
-          <a className="block text-white m-2 p-2 hover:text-gold" href="courses">Courses</a>
+          <button className="block text-white m-2 p-2 hover:text-[#C8AA6E] transition-colors" onClick={() => { navigate('/blog'); checking(); }}>Blog</button>
+          <button className="block text-white m-2 p-2 hover:text-[#C8AA6E] transition-colors" onClick={() => { navigate('/videos'); checking(); }}>Videos</button>
+          <button className="block text-white m-2 p-2 hover:text-[#C8AA6E] transition-colors" onClick={() => { navigate('/courses'); checking(); }}>Courses</button>
           {isConnected ? (
             <div className="m-2">
               <span className="block text-white p-2">{formatAddress(account)}</span>

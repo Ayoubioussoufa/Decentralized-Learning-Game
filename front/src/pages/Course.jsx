@@ -4,20 +4,54 @@ import NavBar from '../components/NavBar';
 import { courses } from '../data/courses';
 import Footer from '../components/Footer';
 import StayUpdated from '../components/StayUpdated';
+import { useMetaMask } from '../contexts/MetaMaskContext';
+import { getCourseProgress as getCourseProgressAPI } from '../services/api';
 
 const Course = () => {
   const { courseId } = useParams();
   const navigate = useNavigate();
   const [courseData, setCourseData] = useState(null);
+  const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [completedSteps, setCompletedSteps] = useState(0);
+  const [totalSteps, setTotalSteps] = useState(0);
+  const { account, provider } = useMetaMask();
 
   useEffect(() => {
     const course = courses.find(c => c.id === courseId);
     if (course) {
       setCourseData(course);
+      // Calculate total steps
+      const totalStepsCount = course.lessons.reduce((total, lesson) => total + lesson.steps.length, 0);
+      setTotalSteps(totalStepsCount);
     } else {
       navigate('/courses');
     }
   }, [courseId, navigate]);
+
+  useEffect(() => {
+    const loadProgress = async () => {
+      if (account && courseId) {
+        try {
+          const progress = await getCourseProgressAPI(account, courseId);
+          
+          // Calculate progress from completed steps vs total steps
+          // Convert string values to numbers (API returns strings to avoid BigInt serialization issues)
+          const completedStepsNum = parseInt(progress.completedSteps) || 0;
+          const calculatedPercentage = totalSteps > 0 ? Math.round((completedStepsNum / totalSteps) * 100) : 0;
+          
+          setCompletionPercentage(calculatedPercentage);
+          setCompletedSteps(completedStepsNum);
+        } catch (error) {
+          console.error('Error loading progress:', error);
+          // Set default values if there's an error
+          setCompletionPercentage(0);
+          setCompletedSteps(0);
+        }
+      }
+    };
+
+    loadProgress();
+  }, [account, courseId, totalSteps]);
 
   if (!courseData) {
     return <div>Loading...</div>;
@@ -38,6 +72,27 @@ const Course = () => {
           <h1 className="text-4xl font-bold text-white mt-2">{courseData.title}</h1>
           <p className="text-[#C8AA6E] text-xl mt-4">{courseData.subtitle}</p>
           <p className="text-gray-400 text-lg mt-4 max-w-2xl">{courseData.description}</p>
+          
+          {/* Progress Section */}
+          {account && (
+            <div className="mt-8 bg-black/50 border border-[#C8AA6E]/20 rounded-lg p-6">
+              <h3 className="text-xl font-bold text-[#C8AA6E] mb-4">Your Progress</h3>
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-white font-medium">
+                  {completedSteps} of {totalSteps} steps completed
+                </span>
+                <span className="text-[#C8AA6E] font-bold text-xl">
+                  {completionPercentage}%
+                </span>
+              </div>
+              <div className="w-full bg-gray-700 rounded-full h-3">
+                <div 
+                  className="bg-[#C8AA6E] h-3 rounded-full transition-all duration-500"
+                  style={{ width: `${completionPercentage}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-8">
